@@ -1,0 +1,47 @@
+//鼠标点击事件（限定在盒子里面）
+			//获取canvas元素
+			var canvas = renderer.domElement;
+			// 获取canvas元素的位置和大小
+			var canvasRect = canvas.getBoundingClientRect();
+			var canvasLeft = canvasRect.left;
+			var canvasTop = canvasRect.top;
+			var canvasWidth = canvasRect.width;
+			var canvasHeight = canvasRect.height;
+
+			var raycaster = new THREE.Raycaster();
+			var mouse = new THREE.Vector2();
+			function onMouseClick(event){
+				event.preventDefault();  //阻止默认事件
+				// 获取鼠标点击位置相对于canvas的坐标
+				var mouseX = event.clientX - canvasLeft;
+    			var mouseY = event.clientY - canvasTop;
+				//将鼠标点击位置的屏幕坐标转成threejs中的标准坐标
+				// 检查点击位置是否在canvas区域内
+				if (mouseX >= 0 && mouseX <= canvasWidth && mouseY >= 0 && mouseY <= canvasHeight) {
+					 // 点击在canvas区域内
+					 mouse.x = (mouseX / canvasWidth) * 2 - 1;
+        			 mouse.y = -(mouseY / canvasHeight) * 2 + 1;
+
+					 raycaster.setFromCamera(mouse, camera);
+
+					 const intersects = raycaster.intersectObjects(scene.children, true);
+
+					if (intersects.length>0){
+						//解析骨骼动画
+					mixer=new THREE.AnimationMixer(fbxmodel)
+					//拿取动作
+					const modelcation=fbxmodel.animations[0]
+					// var AnimationACtion=mixer.clipAction(fbxmodel.animations[0])
+					//动作切片操作。使用的是THREE.AnimationUtils.subclip
+					var AnimationACtion=mixer.clipAction(THREE.AnimationUtils.subclip(modelcation,"A",0,20))
+					AnimationACtion.play()
+
+					
+					setTimeout(function(){
+						AnimationACtion.enabled=false
+					},1000)
+					}
+				}
+				// console.log(mouse)
+			}
+			document.addEventListener('click',onMouseClick,false);
